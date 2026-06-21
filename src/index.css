@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #0a0e1a;          /* Deep space navy */
+    --color-surface: #111827;      /* Card background */
+    --color-border: #1f2937;       /* Subtle borders */
+    --color-primary: #6366f1;      /* Indigo — Stellar brand adjacent */
+    --color-primary-hover: #4f46e5;
+    --color-success: #10b981;      /* Emerald green */
+    --color-error: #ef4444;        /* Red */
+    --color-text: #f9fafb;         /* Near white */
+    --color-text-muted: #9ca3af;   /* Gray 400 */
+    --color-accent: #a78bfa;       /* Violet for highlights */
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+/* Custom premium star-grid background */
+.star-grid {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.15) 1px, transparent 0),
+    radial-gradient(circle at 2px 2px, rgba(167, 139, 250, 0.1) 1.5px, transparent 0);
+  background-size: 24px 24px, 48px 48px;
+  background-position: 0 0, 12px 12px;
+}
+
+/* Custom animations and styling utilities */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+  }
+}
+
+.glow-pulse {
+  animation: pulse-glow 2.5s infinite ease-in-out;
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: slide-up-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Balance balance-flash animation when polling updates */
+@keyframes green-flash {
+  0% {
+    color: var(--color-success);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+.balance-flash {
+  animation: green-flash 1s ease-out;
+}
