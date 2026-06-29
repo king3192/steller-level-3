@@ -84,6 +84,21 @@ If you don't have wallet extensions installed, click the **Connect Demo Wallet (
 
 ---
 
+## Screenshots
+1. Balance And Profile Selectiom
+  ![image alt](https://github.com/king3192/steller-level-3/blob/52f742017db5b881bd437fb253a828ef6c1195f9/Screenshot%202026-06-30%20001800.png)
+2. Profile Roomate (Contract based rent settlement)
+  ![image alt](https://github.com/king3192/steller-level-3/blob/52f742017db5b881bd437fb253a828ef6c1195f9/Screenshot%202026-06-30%20001822.png)
+3. Recent/Past Rent Transactions
+  ![image alt](https://github.com/king3192/steller-level-3/blob/52f742017db5b881bd437fb253a828ef6c1195f9/Screenshot%202026-06-30%20001846.png)
+4. Landlord Dashboard And Registered Roommates
+  ![image alt](https://github.com/king3192/steller-level-3/blob/52f742017db5b881bd437fb253a828ef6c1195f9/Screenshot%202026-06-30%20001912.png)
+5. New Roommate Registration And Link Settlement Contract 
+  ![image alt](https://github.com/king3192/steller-level-3/blob/52f742017db5b881bd437fb253a828ef6c1195f9/Screenshot%202026-06-30%20002006.png)
+
+
+---
+
 ## 🏗️ Project Structure
 
 ```
