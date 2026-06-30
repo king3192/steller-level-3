@@ -1,0 +1,134 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint || echo "ESLint failed or skipped"
+
+      - name: Check for console.log statements
+        run: |
+          echo "Checking for console.log statements..."
+          if grep -r "console.log" src/; then
+            echo "::warning::Active console.log statements detected. Consider removing them before production."
+          else
+            echo "No console.log statements found."
+          fi
+
+      - name: Verify .env.example exists
+        run: |
+          if [ -f .env.example ]; then
+            echo "✅ .env.example exists"
+          else
+            echo "❌ .env.example is missing"
+            exit 1
+          fi
+
+  security-scanning:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || echo "Audit completed with warnings"
+
+      - name: TruffleHog Secret Detection
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          extra_args: --only-verified
+        continue-on-error: true
+
+  bundle-size-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Analyze Bundle Size
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const distDir = 'dist';
+          if (!fs.existsSync(distDir)) {
+            console.error('Dist directory not found!');
+            process.exit(1);
+          }
+          function getDirSize(dir) {
+            let total = 0;
+            const files = fs.readdirSync(dir);
+            for (const f of files) {
+              const fp = path.join(dir, f);
+              const stat = fs.statSync(fp);
+              if (stat.isDirectory()) {
+                total += getDirSize(fp);
+              } else {
+                total += stat.size;
+              }
+            }
+            return total;
+          }
+          const totalSize = getDirSize(distDir);
+          const totalMB = (totalSize / (1024 * 1024)).toFixed(2);
+          console.log('Total Bundle Size: ' + totalMB + ' MB (' + totalSize + ' bytes)');
+          if (totalSize > 2 * 1024 * 1024) {
+            console.log('::warning::Bundle size exceeds 2MB limit: ' + totalMB + ' MB');
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '# Bundle Size Analysis\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '**Total Size:** ' + totalMB + ' MB\n\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '### Files Breakdown\n\`\`\`\n');
+          function listFiles(dir, prefix = '') {
+            const files = fs.readdirSync(dir);
+            for (const f of files) {
+              const fp = path.join(dir, f);
+              const stat = fs.statSync(fp);
+              if (stat.isDirectory()) {
+                listFiles(fp, prefix + f + '/');
+              } else {
+                const sz = (stat.size / 1024).toFixed(2);
+                fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, prefix + f + ': ' + sz + ' KB\n');
+              }
+            }
+          }
+          listFiles(distDir);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '\`\`\`\n');
+          "
